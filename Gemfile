@@ -7,6 +7,9 @@ end
 
 ruby '2.4.1'
 
+gem 'octokit', '~> 4.0'
+gem 'jwt'
+
 gem 'rails', '~> 5.1.5'
 gem 'pg'
 gem 'puma', '~> 3.7'
