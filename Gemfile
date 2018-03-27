@@ -9,6 +9,7 @@ ruby '2.4.1'
 
 gem 'octokit', '~> 4.0'
 gem 'jwt'
+gem 'webpacker', '~> 3.4'
 
 gem 'rails', '~> 5.1.5'
 gem 'pg'
