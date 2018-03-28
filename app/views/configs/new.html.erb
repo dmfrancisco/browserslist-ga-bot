@@ -6,6 +6,7 @@
   action: config_setup_path,
   csrfToken: form_authenticity_token,
   installationId: params[:installation_id],
-  gaClientId: "343796874716-f6alt6bgaufif901tkr06a1vej5gde44.apps.googleusercontent.com",
+  gaClientId: Rails.application.secrets.google_client_id,
   gaScope: "https://www.googleapis.com/auth/analytics.readonly",
+  gaDatePeriods: Config::DATE_PERIODS,
 } %>

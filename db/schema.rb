@@ -16,9 +16,20 @@ ActiveRecord::Schema.define(version: 20180327154008) do
   enable_extension "plpgsql"
 
   create_table "configs", force: :cascade do |t|
-    t.integer "installation_id", null: false
+    t.string "ga_access_token", null: false
+    t.string "ga_refresh_token", null: false
+    t.string "ga_expiry_date", null: false
+    t.string "ga_account_id", null: false
+    t.string "ga_web_property_id", null: false
+    t.string "ga_profile_id", null: false
+    t.integer "ga_date_period", null: false
+    t.string "installation_id", null: false
     t.string "repo", null: false
     t.string "base", null: false
+    t.string "email", null: false
+    t.datetime "committed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

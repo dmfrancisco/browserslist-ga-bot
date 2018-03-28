@@ -1,5 +1,5 @@
 module OctokitUtils
-  def self.new_jwt_token(private_pem = ENV["BOT_PRIVATE_KEY"], app_id = Rails.application.secrets.github_app_id)
+  def self.new_jwt_token(private_pem = ENV["GITHUB_PRIVATE_KEY"], app_id = Rails.application.secrets.github_app_id)
     private_key = OpenSSL::PKey::RSA.new(private_pem)
 
     payload = {}.tap do |opts|

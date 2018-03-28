@@ -32,3 +32,4 @@ foreman run rails c
 ### Pending
 
 * [ ] Better installation error message with prepopulated link
+* [ ] Stop using Rails secrets and use only env vars instead

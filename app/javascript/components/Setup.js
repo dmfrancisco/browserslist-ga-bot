@@ -2,19 +2,25 @@ import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
 class Setup extends React.Component {
-  state = {
-    error: null,
-    success: null,
-    authCode: null,
-    accounts: [],
-    webProperties: [],
-    profiles: [],
-    selectedAccountId: null,
-    selectedWebPropertyId: null,
-    selectedProfileId: null,
-    selectedDatePeriod: null,
-    email: null,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      error: null,
+      success: null,
+      authCode: null,
+      accounts: [],
+      webProperties: [],
+      profiles: [],
+      selectedAccountId: null,
+      selectedWebPropertyId: null,
+      selectedProfileId: null,
+      selectedDatePeriod: this.props.gaDatePeriods[0],
+      repo: null,
+      base: "master",
+      email: null,
+    };
+  }
 
   handleRefresh = e => {
     e.preventDefault();
@@ -160,25 +166,16 @@ class Setup extends React.Component {
   handleSubmit = e => {
     e.preventDefault();
 
-    const {
-      authCode,
-      selectedAccountId,
-      selectedWebPropertyId,
-      selectedProfileId,
-      selectedDatePeriod,
-      email,
-    } = this.state;
-
-    const { installationId } = this.props;
-
     const body = JSON.stringify({
-      authCode,
-      selectedAccountId,
-      selectedWebPropertyId,
-      selectedProfileId,
-      selectedDatePeriod,
-      email,
-      installationId,
+      auth_code: this.state.authCode,
+      account_id: this.state.selectedAccountId,
+      web_property_id: this.state.selectedWebPropertyId,
+      profile_id: this.state.selectedProfileId,
+      date_period: this.state.selectedDatePeriod,
+      installation_id: this.props.installationId,
+      base: this.state.base,
+      repo: this.state.repo,
+      email: this.state.email,
     });
 
     fetch(this.props.action, {
@@ -289,17 +286,42 @@ class Setup extends React.Component {
         <select
           id="date_period"
           name="date_period"
+          value={this.state.selectedDatePeriod}
           onChange={e => this.setState({ selectedDatePeriod: e.target.value })}
         >
-          <option value={30}>Last 30 days</option>
-          <option value={60}>Last 60 days</option>
-          <option value={90}>Last 90 days</option>
+          {this.props.gaDatePeriods.map(period => (
+            <option key={period} value={period}>
+              Last {period} days
+            </option>
+          ))}
         </select>
 
-        <label htmlFor="email" onChange={e => this.setState({ email: e.target.value })}>
-          Contact email
-        </label>
-        <input type="email" id="email" name="email" placeholder="hello@world.com" />
+        <label htmlFor="repo">Repository</label>
+        <input
+          type="text"
+          id="repo"
+          name="repo"
+          placeholder="repouser/reponame"
+          onChange={e => this.setState({ repo: e.target.value })}
+        />
+
+        <label htmlFor="base">Branch</label>
+        <input
+          type="text"
+          id="base"
+          name="base"
+          defaultValue={this.state.base}
+          onChange={e => this.setState({ base: e.target.value })}
+        />
+
+        <label htmlFor="email">Contact email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="hello@world.com"
+          onChange={e => this.setState({ email: e.target.value })}
+        />
 
         <input type="submit" name="commit" value="Save" />
       </form>
@@ -342,6 +364,7 @@ Setup.propTypes = {
   installationId: PropTypes.string.isRequired,
   gaClientId: PropTypes.string.isRequired,
   gaScope: PropTypes.string.isRequired,
+  gaDatePeriods: PropTypes.array.isRequired,
 };
 
 export default Setup;
