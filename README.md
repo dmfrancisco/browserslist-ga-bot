@@ -24,7 +24,11 @@ For example, to start the rails console type the following command:
 foreman run rails c
 ```
 
-Additional notes:
+### Additional notes
 
-* If after changing the `.env` file you don't see the changes, run `spring stop`
+* If after changing the `.env` file you don't see the changes, run `spring stop`.
 * `secrets.yml` replaces newlines with spaces for multiline values, so we aren't using it for the PEM file's content.
+
+### Pending
+
+* [ ] Better installation error message with prepopulated link

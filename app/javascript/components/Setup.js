@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 class Setup extends React.Component {
   state = {
     error: null,
+    success: null,
     authCode: null,
     accounts: [],
     webProperties: [],
@@ -11,6 +12,13 @@ class Setup extends React.Component {
     selectedAccountId: null,
     selectedWebPropertyId: null,
     selectedProfileId: null,
+    selectedDatePeriod: null,
+    email: null,
+  };
+
+  handleRefresh = e => {
+    e.preventDefault();
+    window.location.reload();
   };
 
   getAccounts = () =>
@@ -152,9 +160,28 @@ class Setup extends React.Component {
   handleSubmit = e => {
     e.preventDefault();
 
-    const { authCode } = this.state;
+    const {
+      authCode,
+      selectedAccountId,
+      selectedWebPropertyId,
+      selectedProfileId,
+      selectedDatePeriod,
+      email,
+    } = this.state;
 
-    fetch(this.props.setupAuthUrl, {
+    const { installationId } = this.props;
+
+    const body = JSON.stringify({
+      authCode,
+      selectedAccountId,
+      selectedWebPropertyId,
+      selectedProfileId,
+      selectedDatePeriod,
+      email,
+      installationId,
+    });
+
+    fetch(this.props.action, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -162,9 +189,28 @@ class Setup extends React.Component {
         "X-Requested-With": "XMLHttpRequest",
         "X-CSRF-Token": this.props.csrfToken,
       },
-      body: JSON.stringify({ code: authCode }),
       credentials: "same-origin",
-    });
+      body,
+    })
+      .then(response => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          var error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          return this.setState({ error: data.error.message });
+        }
+        this.setState({ success: true });
+      })
+      .catch(error => {
+        this.setState({ error: error.message });
+      });
   };
 
   componentDidMount() {
@@ -177,10 +223,8 @@ class Setup extends React.Component {
     });
   }
 
-  render() {
+  renderSignedIn() {
     const {
-      error,
-      authCode,
       accounts,
       webProperties,
       profiles,
@@ -189,65 +233,115 @@ class Setup extends React.Component {
       selectedProfileId,
     } = this.state;
 
-    if (error) {
-      return <div>{error}</div>;
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <div>
+          Successfully signed in. Please{" "}
+          <a href="#refresh" onClick={this.handleRefresh}>
+            refresh
+          </a>{" "}
+          if you want to restart the process.
+        </div>
+
+        <label htmlFor="ga_account_id">Google Analytics Account</label>
+        <select
+          id="ga_account_id"
+          name="ga_account_id"
+          value={selectedAccountId}
+          onChange={this.handleAccountChange}
+        >
+          {accounts.map(item => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="ga_web_property_id">Google Analytics Property</label>
+        <select
+          id="ga_web_property_id"
+          name="ga_web_property_id"
+          value={selectedWebPropertyId}
+          onChange={this.handleWebPropertyChange}
+        >
+          {webProperties.map(item => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="ga_profile_id">Google Analytics Profile</label>
+        <select
+          id="ga_profile_id"
+          name="ga_profile_id"
+          value={selectedProfileId}
+          onChange={this.handleProfileChange}
+        >
+          {profiles.map(item => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="date_period">Date period</label>
+        <select
+          id="date_period"
+          name="date_period"
+          onChange={e => this.setState({ selectedDatePeriod: e.target.value })}
+        >
+          <option value={30}>Last 30 days</option>
+          <option value={60}>Last 60 days</option>
+          <option value={90}>Last 90 days</option>
+        </select>
+
+        <label htmlFor="email" onChange={e => this.setState({ email: e.target.value })}>
+          Contact email
+        </label>
+        <input type="email" id="email" name="email" placeholder="hello@world.com" />
+
+        <input type="submit" name="commit" value="Save" />
+      </form>
+    );
+  }
+
+  renderSignedOut() {
+    return (
+      <button id="signinButton" onClick={this.handleSignIn}>
+        Sign in with Google
+      </button>
+    );
+  }
+
+  render() {
+    const { installationId } = this.props;
+    const { error, success, authCode } = this.state;
+    const signedIn = !!authCode;
+
+    if (error) return <div>{error}</div>;
+    if (success) return <div>Success!</div>;
+
+    if (!installationId) {
+      return (
+        <div>
+          Your GitHub app installation ID is missing. Do you come from the GitHub Marketplace by
+          clicking the Install button? If you do please open an issue in our support page. We are
+          sorry for the inconvenience.
+        </div>
+      );
     }
 
-    return (
-      <Fragment>
-        {authCode ? (
-          <Fragment>
-            <div>Signed in</div>
-
-            <select value={selectedAccountId} onChange={this.handleAccountChange}>
-              {accounts.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <select value={selectedWebPropertyId} onChange={this.handleWebPropertyChange}>
-              {webProperties.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            <select value={selectedProfileId} onChange={this.handleProfileChange}>
-              {profiles.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </Fragment>
-        ) : (
-          <button id="signinButton" onClick={this.handleSignIn}>
-            Sign in with Google
-          </button>
-        )}
-
-        <textarea cols="80" rows="20" id="query-output" value={JSON.stringify(this.state)} />
-
-        <input type="submit" name="commit" value="Save" onSubmit={this.handleSubmit} />
-      </Fragment>
-    );
+    return <Fragment>{signedIn ? this.renderSignedIn() : this.renderSignedOut()}</Fragment>;
   }
 }
 
 Setup.propTypes = {
+  action: PropTypes.string.isRequired,
   csrfToken: PropTypes.string.isRequired,
-  gaClientId: PropTypes.string,
-  gaScope: PropTypes.string,
-  setupAuthUrl: PropTypes.string,
-};
-
-Setup.defaultProps = {
-  gaClientId: "343796874716-f6alt6bgaufif901tkr06a1vej5gde44.apps.googleusercontent.com",
-  gaScope: "https://www.googleapis.com/auth/analytics.readonly",
-  setupAuthUrl: "/setup/auth",
+  installationId: PropTypes.string.isRequired,
+  gaClientId: PropTypes.string.isRequired,
+  gaScope: PropTypes.string.isRequired,
 };
 
 export default Setup;

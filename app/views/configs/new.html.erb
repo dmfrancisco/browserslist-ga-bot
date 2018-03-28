@@ -3,5 +3,9 @@
 <% end %>
 
 <%= react_component "Setup", {
+  action: config_setup_path,
   csrfToken: form_authenticity_token,
+  installationId: params[:installation_id],
+  gaClientId: "343796874716-f6alt6bgaufif901tkr06a1vej5gde44.apps.googleusercontent.com",
+  gaScope: "https://www.googleapis.com/auth/analytics.readonly",
 } %>
