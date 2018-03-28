@@ -5,7 +5,7 @@ class ConfigsController < ApplicationController
   def create
     config = Config.new
 
-    tokens = get_google_tokens params[:auth_code]
+    tokens = JS.get_google_tokens params[:auth_code]
 
     config.ga_access_token = tokens["access_token"]
     config.ga_refresh_token = tokens["refresh_token"]
@@ -25,12 +25,5 @@ class ConfigsController < ApplicationController
     config.save!
 
     render json: {}, status: 200
-  end
-
-  private
-
-  def get_google_tokens(auth_code)
-    bin = Rails.env.dev? ? "foreman run node" : "node"
-    JSON.parse `#{ bin } scripts/get_google_tokens.js #{ auth_code }`
   end
 end
