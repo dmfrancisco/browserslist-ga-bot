@@ -11,5 +11,9 @@
   },
   "devDependencies": {
     "webpack-dev-server": "2.11.2"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "es5"
   }
 }

@@ -1,0 +1,9 @@
+<% content_for :head do %>
+  <meta name="google-signin-client_id" content="343796874716-f6alt6bgaufif901tkr06a1vej5gde44.apps.googleusercontent.com">
+  <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
+  <script src="https://apis.google.com/js/client:platform.js"></script>
+<% end %>
+
+<%= form_for :config, url: config_setup_path do |f| %>
+  <%= react_component "Setup" %>
+<% end %>
