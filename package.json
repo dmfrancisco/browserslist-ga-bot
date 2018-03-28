@@ -10,10 +10,23 @@
     "react_ujs": "^2.4.4"
   },
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^4.1.1",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.34.1",
+    "eslint-plugin-import": "^2.6.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0",
     "webpack-dev-server": "2.11.2"
   },
   "prettier": {
     "printWidth": 100,
     "trailingComma": "es5"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "globals": {
+      "gapi": false
+    }
   }
 }
