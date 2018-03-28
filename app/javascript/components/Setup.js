@@ -1,87 +1,253 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
-// Replace with your view ID.
-var VIEW_ID = "113877450";
-
-function displayResults(response) {
-  var formattedJson = JSON.stringify(response.result, null, 2);
-  document.getElementById("query-output").value = formattedJson;
-}
-
 class Setup extends React.Component {
-  getData = () => {
-    const reportRequests = [
-      {
-        viewId: VIEW_ID,
-        dateRanges: [
-          {
-            startDate: "30daysAgo",
-            endDate: "today",
-          },
-        ],
-        metrics: [
-          {
-            expression: "ga:pageviews",
-          },
-        ],
-        dimensions: [
-          { name: "ga:operatingSystem" },
-          { name: "ga:operatingSystemVersion" },
-          { name: "ga:browser" },
-          { name: "ga:browserVersion" },
-          { name: "ga:isMobile" },
-        ],
-        orderBys: [{ fieldName: "ga:browser", sortOrder: "ASCENDING" }],
-        pageSize: "10000",
-      },
-    ];
+  state = {
+    error: null,
+    authCode: null,
+    accounts: [],
+    webProperties: [],
+    profiles: [],
+    selectedAccountId: null,
+    selectedWebPropertyId: null,
+    selectedProfileId: null,
+  };
 
-    gapi.client
-      .request({
-        path: "/v4/reports:batchGet",
-        root: "https://analyticsreporting.googleapis.com/",
-        method: "POST",
-        body: { reportRequests },
+  getAccounts = () =>
+    new Promise((resolve, reject) => {
+      const request = gapi.client.analytics.management.accounts.list();
+
+      request.execute(data => {
+        if (data.error) {
+          return reject(data);
+        }
+        resolve(data.items.map(({ id, name }) => ({ id, name })));
+      });
+    });
+
+  getWebProperties = accountId =>
+    new Promise((resolve, reject) => {
+      const request = gapi.client.analytics.management.webproperties.list({ accountId });
+
+      request.execute(data => {
+        if (data.error) {
+          return reject(data);
+        }
+        resolve(data.items.map(({ id, name }) => ({ id, name })));
+      });
+    });
+
+  getProfiles = (accountId, webPropertyId) =>
+    new Promise((resolve, reject) => {
+      const request = gapi.client.analytics.management.profiles.list({ accountId, webPropertyId });
+
+      request.execute(data => {
+        if (data.error) {
+          return reject(data);
+        }
+        resolve(data.items.map(({ id, name }) => ({ id, name })));
+      });
+    });
+
+  handleAccountChange = e => {
+    const selectedAccountId = e.target.value;
+    let webProperties, selectedWebPropertyId;
+
+    this.getWebProperties(selectedAccountId)
+      .then(data => {
+        webProperties = data;
+        selectedWebPropertyId = webProperties[0].id;
+
+        return this.getProfiles(selectedAccountId, selectedWebPropertyId);
       })
-      .then(displayResults, console.error.bind(console));
+      .then(data => {
+        const profiles = data;
+        const selectedProfileId = profiles[0].id;
+
+        this.setState({
+          webProperties,
+          profiles,
+          selectedAccountId,
+          selectedWebPropertyId,
+          selectedProfileId,
+        });
+      })
+      .catch(data => {
+        this.setState({ error: data.error.message });
+      });
   };
 
-  handleSubmit() {
-    console.log("yep", this);
-  }
+  handleWebPropertyChange = e => {
+    const selectedAccountId = this.state.selectedAccountId;
+    const selectedWebPropertyId = e.target.value;
 
-  onSignInSuccess = () => {
-    console.log("Successfully signed in.");
-    this.getData();
+    this.getProfiles(selectedAccountId, selectedWebPropertyId)
+      .then(data => {
+        const profiles = data;
+        const selectedProfileId = profiles[0].id;
+
+        this.setState({
+          profiles,
+          selectedWebPropertyId,
+          selectedProfileId,
+        });
+      })
+      .catch(data => {
+        this.setState({ error: data.error.message });
+      });
   };
 
-  onSignInFailure = () => {
-    console.log("An error occurred while signing in.");
+  handleProfileChange = e => {
+    const selectedProfileId = e.target.value;
+
+    this.setState({
+      selectedProfileId,
+    });
+  };
+
+  handleSignInSuccess = authCode => {
+    let accounts, webProperties, selectedAccountId, selectedWebPropertyId;
+
+    this.getAccounts()
+      .then(data => {
+        accounts = data;
+        selectedAccountId = accounts[0].id;
+
+        return this.getWebProperties(selectedAccountId);
+      })
+      .then(data => {
+        webProperties = data;
+        selectedWebPropertyId = webProperties[0].id;
+
+        return this.getProfiles(selectedAccountId, selectedWebPropertyId);
+      })
+      .then(data => {
+        const profiles = data;
+        const selectedProfileId = profiles[0].id;
+
+        this.setState({
+          authCode,
+          accounts,
+          webProperties,
+          profiles,
+          selectedAccountId,
+          selectedWebPropertyId,
+          selectedProfileId,
+        });
+      })
+      .catch(data => {
+        this.setState({ error: data.error.message });
+      });
   };
 
   handleSignIn = e => {
     e.preventDefault();
+
+    this.auth2
+      .grantOfflineAccess()
+      .then(data => this.handleSignInSuccess(data.code))
+      .catch(e => console.error(e));
+  };
+
+  handleSubmit = e => {
+    e.preventDefault();
+
+    const { authCode } = this.state;
+
+    fetch(this.props.setupAuthUrl, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRF-Token": this.props.csrfToken,
+      },
+      body: JSON.stringify({ code: authCode }),
+      credentials: "same-origin",
+    });
   };
 
   componentDidMount() {
-    gapi.signin2.render("sign-in", {
-      onsuccess: this.onSignInSuccess,
-      onfailure: this.onSignInFailure,
+    // Load both the "auth2" and "analytics" libraries (see https://goo.gl/emgo8U)
+    gapi.load("auth2:analytics", () => {
+      this.auth2 = gapi.auth2.init({
+        client_id: this.props.gaClientId,
+        scope: this.props.gaScope,
+      });
     });
   }
 
   render() {
+    const {
+      error,
+      authCode,
+      accounts,
+      webProperties,
+      profiles,
+      selectedAccountId,
+      selectedWebPropertyId,
+      selectedProfileId,
+    } = this.state;
+
+    if (error) {
+      return <div>{error}</div>;
+    }
+
     return (
       <Fragment>
-        <div id="sign-in" />
+        {authCode ? (
+          <Fragment>
+            <div>Signed in</div>
 
-        <textarea cols="80" rows="20" id="query-output" />
+            <select value={selectedAccountId} onChange={this.handleAccountChange}>
+              {accounts.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+
+            <select value={selectedWebPropertyId} onChange={this.handleWebPropertyChange}>
+              {webProperties.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+
+            <select value={selectedProfileId} onChange={this.handleProfileChange}>
+              {profiles.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </Fragment>
+        ) : (
+          <button id="signinButton" onClick={this.handleSignIn}>
+            Sign in with Google
+          </button>
+        )}
+
+        <textarea cols="80" rows="20" id="query-output" value={JSON.stringify(this.state)} />
 
         <input type="submit" name="commit" value="Save" onSubmit={this.handleSubmit} />
       </Fragment>
     );
   }
 }
+
+Setup.propTypes = {
+  csrfToken: PropTypes.string.isRequired,
+  gaClientId: PropTypes.string,
+  gaScope: PropTypes.string,
+  setupAuthUrl: PropTypes.string,
+};
+
+Setup.defaultProps = {
+  gaClientId: "343796874716-f6alt6bgaufif901tkr06a1vej5gde44.apps.googleusercontent.com",
+  gaScope: "https://www.googleapis.com/auth/analytics.readonly",
+  setupAuthUrl: "/setup/auth",
+};
 
 export default Setup;
