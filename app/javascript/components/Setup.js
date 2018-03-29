@@ -484,11 +484,10 @@ class Setup extends React.Component {
         <div className="text-center">
           <img
             src="/logo.svg"
-            width="520"
-            height="68"
             alt="Browserslist-GA logo"
             className="my-4"
             draggable={false}
+            style={{ maxWidth: 520 }}
           />
 
           <p className="f2-light mb-4" style={{ fontSize: 16 }}>
