@@ -9,6 +9,7 @@ class Setup extends React.Component {
 
     this.state = {
       error: null,
+      validationError: null,
       success: null,
       authCode: null,
       accounts: [],
@@ -165,8 +166,17 @@ class Setup extends React.Component {
       .catch(e => console.error(e));
   };
 
+  isValid() {
+    const { base, repo, email } = this.state;
+
+    if (!base || !repo || !email) return false;
+    return true;
+  }
+
   handleSubmit = e => {
     e.preventDefault();
+
+    if (!this.isValid()) return this.setState({ validationError: true });
 
     const body = JSON.stringify({
       auth_code: this.state.authCode,
@@ -224,6 +234,7 @@ class Setup extends React.Component {
 
   renderSignedIn() {
     const {
+      validationError,
       accounts,
       webProperties,
       profiles,
@@ -234,13 +245,21 @@ class Setup extends React.Component {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <div className="flash flash-full flash-success">
-          Successfully signed in! Please{" "}
-          <a href="#refresh" onClick={this.handleRefresh}>
-            refresh
-          </a>{" "}
-          if you need to sign in with a different account.
-        </div>
+        {!validationError && (
+          <div className="flash flash-full flash-success">
+            Successfully signed in! Please{" "}
+            <a href="#refresh" onClick={this.handleRefresh}>
+              refresh
+            </a>{" "}
+            if you need to sign in with a different account.
+          </div>
+        )}
+
+        {validationError && (
+          <div className="flash flash-full flash-error">
+            Oops, it seems some required fields are missing.
+          </div>
+        )}
 
         <div className="Box-body">
           <div className="clearfix">
