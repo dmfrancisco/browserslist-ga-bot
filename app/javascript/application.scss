@@ -1,0 +1,12 @@
+@import "~primer/build/build";
+
+body {
+  margin: 20px;
+  min-width: 280px;
+  background: #fafbfc url("/hero.svg");
+}
+
+.main {
+  max-width: 980px;
+  margin: 0 auto;
+}

@@ -5,6 +5,7 @@
     "@rails/webpacker": "^3.4.1",
     "babel-preset-react": "^6.24.1",
     "googleapis": "^27.0.0",
+    "primer": "^10.4.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

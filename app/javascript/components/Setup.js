@@ -1,6 +1,8 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
+import { ToolsIcon } from "./Icons";
+
 class Setup extends React.Component {
   constructor(props) {
     super(props);
@@ -232,114 +234,189 @@ class Setup extends React.Component {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <div>
-          Successfully signed in. Please{" "}
+        <div className="flash flash-full flash-success">
+          Successfully signed in! Please{" "}
           <a href="#refresh" onClick={this.handleRefresh}>
             refresh
           </a>{" "}
-          if you want to restart the process.
+          if you need to sign in with a different account.
         </div>
 
-        <label htmlFor="ga_account_id">Google Analytics Account</label>
-        <select
-          id="ga_account_id"
-          name="ga_account_id"
-          value={selectedAccountId}
-          onChange={this.handleAccountChange}
-        >
-          {accounts.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+        <div className="Box-body">
+          <div className="clearfix">
+            <dl className="form-group col-4 float-left pr-2 my-0">
+              <dt>
+                <label htmlFor="ga_account_id">Account</label>
+              </dt>
+              <dd>
+                <select
+                  id="ga_account_id"
+                  name="ga_account_id"
+                  value={selectedAccountId}
+                  onChange={this.handleAccountChange}
+                  className="form-select input-block"
+                >
+                  {accounts.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </dd>
+            </dl>
 
-        <label htmlFor="ga_web_property_id">Google Analytics Property</label>
-        <select
-          id="ga_web_property_id"
-          name="ga_web_property_id"
-          value={selectedWebPropertyId}
-          onChange={this.handleWebPropertyChange}
-        >
-          {webProperties.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+            <dl className="form-group col-4 float-left px-1 my-0">
+              <dt>
+                <label htmlFor="ga_web_property_id">Property</label>
+              </dt>
+              <dd>
+                <select
+                  id="ga_web_property_id"
+                  name="ga_web_property_id"
+                  value={selectedWebPropertyId}
+                  onChange={this.handleWebPropertyChange}
+                  className="form-select input-block"
+                >
+                  {webProperties.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </dd>
+            </dl>
 
-        <label htmlFor="ga_profile_id">Google Analytics Profile</label>
-        <select
-          id="ga_profile_id"
-          name="ga_profile_id"
-          value={selectedProfileId}
-          onChange={this.handleProfileChange}
-        >
-          {profiles.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+            <dl className="form-group col-4 float-left pl-2 my-0">
+              <dt>
+                <label htmlFor="ga_profile_id">Profile</label>
+              </dt>
+              <dd>
+                <select
+                  id="ga_profile_id"
+                  name="ga_profile_id"
+                  value={selectedProfileId}
+                  onChange={this.handleProfileChange}
+                  className="form-select input-block"
+                >
+                  {profiles.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </dd>
+            </dl>
+          </div>
 
-        <label htmlFor="date_period">Date period</label>
-        <select
-          id="date_period"
-          name="date_period"
-          value={this.state.selectedDatePeriod}
-          onChange={e => this.setState({ selectedDatePeriod: e.target.value })}
-        >
-          {this.props.gaDatePeriods.map(period => (
-            <option key={period} value={period}>
-              Last {period} days
-            </option>
-          ))}
-        </select>
+          <dl className="form-group">
+            <dt>
+              <label htmlFor="date_period">Date period</label>
+            </dt>
+            <dd>
+              <select
+                id="date_period"
+                name="date_period"
+                value={this.state.selectedDatePeriod}
+                onChange={e => this.setState({ selectedDatePeriod: e.target.value })}
+                className="form-select"
+              >
+                {this.props.gaDatePeriods.map(period => (
+                  <option key={period} value={period}>
+                    Last {period} days
+                  </option>
+                ))}
+              </select>
+              <p className="note">The days that should be considered while fetching the stats.</p>
+            </dd>
+          </dl>
 
-        <label htmlFor="repo">Repository</label>
-        <input
-          type="text"
-          id="repo"
-          name="repo"
-          placeholder="repouser/reponame"
-          onChange={e => this.setState({ repo: e.target.value })}
-        />
+          <dl className="form-group">
+            <dt>
+              <label htmlFor="repo">Repository</label>
+            </dt>
+            <dd>
+              <input
+                type="text"
+                id="repo"
+                name="repo"
+                placeholder="owner/name (eg. facebook/react)"
+                onChange={e => this.setState({ repo: e.target.value })}
+                className="form-control"
+              />
+              <p className="note">
+                The repository you want the bot to commit <code>browserslist-stats.json</code> to.
+              </p>
+            </dd>
+          </dl>
 
-        <label htmlFor="base">Branch</label>
-        <input
-          type="text"
-          id="base"
-          name="base"
-          defaultValue={this.state.base}
-          onChange={e => this.setState({ base: e.target.value })}
-        />
+          <dl className="form-group">
+            <dt>
+              <label htmlFor="base">Branch</label>
+            </dt>
+            <dd>
+              <input
+                type="text"
+                id="base"
+                name="base"
+                defaultValue={this.state.base}
+                placeholder="(eg. master)"
+                onChange={e => this.setState({ base: e.target.value })}
+                className="form-control"
+              />
+              <p className="note">
+                The existing branch you want the bot to commit <code>browserslist-stats.json</code>{" "}
+                to.
+              </p>
+            </dd>
+          </dl>
 
-        <label htmlFor="email">Contact email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="hello@world.com"
-          onChange={e => this.setState({ email: e.target.value })}
-        />
+          <dl className="form-group">
+            <dt>
+              <label htmlFor="email">Contact email</label>
+            </dt>
+            <dd>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="hello@world.com"
+                onChange={e => this.setState({ email: e.target.value })}
+                className="form-control"
+              />
+              <p className="note">In case we need to contact you.</p>
+            </dd>
+          </dl>
 
-        <input type="submit" name="commit" value="Save" />
+          <div className="form-actions">
+            <input
+              type="submit"
+              name="commit"
+              value="Save configuration"
+              className="btn btn-primary"
+            />
+          </div>
+        </div>
       </form>
     );
   }
 
   renderSignedOut() {
     return (
-      <button id="signinButton" onClick={this.handleSignIn}>
-        Sign in with Google
-      </button>
+      <div className="Box-body">
+        <div className="blankslate blankslate-clean-background px-0">
+          <button onClick={this.handleSignIn} className="btn btn-blue btn-large mb-2">
+            Sign In with Google Analytics
+          </button>
+          <p className="note">The bot needs read access to your Google Analytics account.</p>
+        </div>
+      </div>
     );
   }
 
   render() {
     const { installationId } = this.props;
     const { error, success, authCode } = this.state;
-    const signedIn = !!authCode;
+    const signedIn = true || !!authCode;
 
     if (error) return <div>{error}</div>;
     if (success) return <div>Success!</div>;
@@ -354,7 +431,34 @@ class Setup extends React.Component {
       );
     }
 
-    return <Fragment>{signedIn ? this.renderSignedIn() : this.renderSignedOut()}</Fragment>;
+    return (
+      <div className="main">
+        <div className="text-center">
+          <img
+            src="/logo.svg"
+            width="520"
+            height="68"
+            alt="Browserslist-GA logo"
+            className="my-4"
+            draggable={false}
+          />
+
+          <p className="f2-light mb-4" style={{ fontSize: 16 }}>
+            Thank you. You're almost done!
+          </p>
+        </div>
+
+        <div className="Box">
+          <div className="Box-header">
+            <h2 className="Box-title">
+              <ToolsIcon width={11} height={11} style={{ marginRight: 4 }} /> Configure your
+              installation
+            </h2>
+          </div>
+          {signedIn ? this.renderSignedIn() : this.renderSignedOut()}
+        </div>
+      </div>
+    );
   }
 }
 
