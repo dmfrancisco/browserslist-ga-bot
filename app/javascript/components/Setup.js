@@ -413,24 +413,53 @@ class Setup extends React.Component {
     );
   }
 
-  render() {
+  renderError(error) {
+    return (
+      <div className="flash flash-full flash-error">
+        Looks like something went wrong: "{error}". We track these errors automatically, but if the
+        problem persists feel free to{" "}
+        <a href="https://github.com/browserslist/browserslist-ga/issues/new">
+          open an issue in our support page
+        </a>. We are sorry for the inconvenience.
+      </div>
+    );
+  }
+
+  renderSuccess() {
+    return (
+      <div className="flash flash-full flash-success">
+        Success! You should see in a couple hours a commit by this bot if a{" "}
+        <code>browserslist-ga.json</code> file doesn't exist already. After that the file will be
+        updated everytime there are substantial changes. You can close this page. Thank you!
+      </div>
+    );
+  }
+
+  renderNoInstallation() {
+    return (
+      <div className="flash flash-full flash-warn">
+        Your GitHub app installation ID is missing. Do you come from the GitHub Marketplace by
+        clicking the Install button? Please{" "}
+        <a href="https://github.com/browserslist/browserslist-ga/issues/new">
+          open an issue in our support page
+        </a>. We are sorry for the inconvenience.
+      </div>
+    );
+  }
+
+  renderContent() {
     const { installationId } = this.props;
     const { error, success, authCode } = this.state;
-    const signedIn = true || !!authCode;
+    const signedIn = !!authCode;
 
-    if (error) return <div>{error}</div>;
-    if (success) return <div>Success!</div>;
+    if (error) return this.renderError(error);
+    if (success) return this.renderSuccess();
+    if (!installationId) return this.renderNoInstallation();
 
-    if (!installationId) {
-      return (
-        <div>
-          Your GitHub app installation ID is missing. Do you come from the GitHub Marketplace by
-          clicking the Install button? If you do please open an issue in our support page. We are
-          sorry for the inconvenience.
-        </div>
-      );
-    }
+    return signedIn ? this.renderSignedIn() : this.renderSignedOut();
+  }
 
+  render() {
     return (
       <div className="main">
         <div className="text-center">
@@ -455,7 +484,7 @@ class Setup extends React.Component {
               installation
             </h2>
           </div>
-          {signedIn ? this.renderSignedIn() : this.renderSignedOut()}
+          {this.renderContent()}
         </div>
       </div>
     );
