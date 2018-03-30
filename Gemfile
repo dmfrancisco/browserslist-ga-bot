@@ -11,6 +11,7 @@ gem 'octokit', '~> 4.0'
 gem 'jwt'
 gem 'webpacker', '~> 3.4'
 gem 'react-rails'
+gem 'sentry-raven'
 
 gem 'rails', '~> 5.1.5'
 gem 'pg'
