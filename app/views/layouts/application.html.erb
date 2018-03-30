@@ -7,15 +7,13 @@
 
     <title>Browserslist-GA</title>
 
-    <%= csrf_meta_tags %>
-
     <% if Rails.env.production? %>
       <script src="https://cdn.ravenjs.com/3.18.1/raven.min.js" crossorigin="anonymous"></script>
       <script>Raven.config('https://c8484e8132984513be1f3e89969d98dc@sentry.io/227374').install()</script>
     <% end %>
 
-    <%= javascript_pack_tag 'application' %>
-    <%= stylesheet_pack_tag 'application' %>
+    <%= javascript_pack_tag 'app' %>
+    <%= stylesheet_pack_tag 'app' %>
     <%= yield :head %>
   </head>
 
