@@ -1,10 +1,13 @@
 class ConfigsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :event
   before_action :verify_webhook_signature, only: :event
+  before_action :require_xhr, only: :check_availability
 
+  # User is redirected to the our page after installing the app
   def new
   end
 
+  # User submits the form
   def create
     tokens = JS.get_google_tokens params[:auth_code]
 
@@ -25,6 +28,26 @@ class ConfigsController < ApplicationController
     render json: {}, status: 200
   end
 
+  # The user is redirect and at around the same time a webhook comes in
+  # Check if we have access to the specified repository
+  def check_availability
+    installation_id = params[:installation_id]
+    repo = params[:repo]
+
+    # We check the timestamp for extra security
+    event = Event
+      .where(installation_id: installation_id)
+      .where(action: ["created", "added"]) # Either new installation or repository change on existing one
+      .where("created_at > ?", 1.day.ago)
+      .order(created_at: :desc)
+      .first
+
+    repositories = event.payload["repositories"] || event.payload["repositories_added"]
+    available = repositories.map { |repo| repo["full_name"].downcase }.include? repo.downcase
+
+    render json: { available: available }.to_json, status: 200
+  end
+
   # Listen to GitHub webhook events and save them in the database
   def event
     event = Event.new
@@ -39,6 +62,10 @@ class ConfigsController < ApplicationController
   end
 
   private
+
+  def require_xhr
+    redirect_to "/" unless request.xhr?
+  end
 
   # Validate that the request really comes from GitHub
   def verify_webhook_signature

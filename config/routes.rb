@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   get "/setup", to: "configs#new", as: "config_setup"
   post "/setup", to: "configs#create"
+  post "/check-availability", to: "configs#check_availability", as: "config_check_availability"
   post "/event", to: "configs#event"
 
   root to: redirect("https://github.com/apps/browserslist-ga")

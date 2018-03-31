@@ -8,3 +8,18 @@ export const ToolsIcon = props => (
     />
   </svg>
 );
+
+export const CheckIcon = props => (
+  <svg width={12} height={16} viewBox="0 0 12 16" {...props}>
+    <path d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z" fillRule="evenodd" />
+  </svg>
+);
+
+export const AlertIcon = props => (
+  <svg width={16} height={16} viewBox="0 0 16 16" {...props}>
+    <path
+      fillRule="evenodd"
+      d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"
+    />
+  </svg>
+);

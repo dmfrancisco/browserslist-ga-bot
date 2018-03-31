@@ -8,6 +8,7 @@
     "primer": "^10.4.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
+    "react-debounce-input": "^3.2.0",
     "react-dom": "^16.2.0",
     "react_ujs": "^2.4.4"
   },

@@ -4,6 +4,7 @@
 
 <%= react_component "Setup", {
   action: config_setup_path,
+  checkAvailabilityPath: config_check_availability_path,
   csrfToken: form_authenticity_token,
   installationId: params[:installation_id],
   gaClientId: Rails.application.secrets.google_client_id,

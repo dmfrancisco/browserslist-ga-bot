@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
+import RepoInput from "./RepoInput";
 import { ToolsIcon } from "./Icons";
 
 class Setup extends React.Component {
@@ -205,7 +206,7 @@ class Setup extends React.Component {
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
-          var error = new Error(response.statusText);
+          const error = new Error(response.statusText);
           error.response = response;
           throw error;
         }
@@ -233,6 +234,8 @@ class Setup extends React.Component {
   }
 
   renderSignedIn() {
+    const { checkAvailabilityPath, csrfToken, installationId } = this.props;
+
     const {
       validationError,
       accounts,
@@ -241,6 +244,7 @@ class Setup extends React.Component {
       selectedAccountId,
       selectedWebPropertyId,
       selectedProfileId,
+      repo,
     } = this.state;
 
     return (
@@ -257,7 +261,7 @@ class Setup extends React.Component {
 
         {validationError && (
           <div className="flash flash-full flash-error">
-            Oops, it seems some required fields are missing.
+            Oops, it seems some required fields are missing or invalid.
           </div>
         )}
 
@@ -354,13 +358,16 @@ class Setup extends React.Component {
               <label htmlFor="repo">Repository</label>
             </dt>
             <dd>
-              <input
-                type="text"
+              <RepoInput
                 id="repo"
                 name="repo"
                 placeholder="owner/name (eg. facebook/react)"
-                onChange={e => this.setState({ repo: e.target.value })}
+                onChange={value => this.setState({ repo: value })}
                 className="form-control"
+                checkAvailabilityPath={checkAvailabilityPath}
+                csrfToken={csrfToken}
+                installationId={installationId}
+                valid={!!repo}
               />
               <p className="note">
                 The repository you want the bot to commit <code>browserslist-stats.json</code> to.
@@ -511,6 +518,7 @@ class Setup extends React.Component {
 
 Setup.propTypes = {
   action: PropTypes.string.isRequired,
+  checkAvailabilityPath: PropTypes.string.isRequired,
   csrfToken: PropTypes.string.isRequired,
   installationId: PropTypes.string.isRequired,
   gaClientId: PropTypes.string.isRequired,
