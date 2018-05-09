@@ -1,6 +1,11 @@
-<img width="520" height="68" src="./public/logo.svg" alt="Browserslist-GA logo">
+_This is a work in progress and is not fully functional at the moment._
 
-Target browsers tailored to your audience using Google Analytics and GitHub Apps.
+---
+
+The bot only asks for read and write access to a single file
+and has no access to the rest of the code in any repository.
+
+![Screenshot](./public/screenshot.png)
 
 ---
 
@@ -28,8 +33,3 @@ foreman run rails c
 
 * If after changing the `.env` file you don't see the changes, run `spring stop`.
 * `secrets.yml` replaces newlines with spaces for multiline values, so we aren't using it for the PEM file's content.
-
-### Pending
-
-* [ ] Better installation error message with prepopulated link
-* [ ] Stop using Rails secrets and use only env vars instead
